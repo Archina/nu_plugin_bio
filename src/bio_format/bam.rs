@@ -3,8 +3,8 @@ use noodles::{
     bam,
     sam::{self, alignment::Record as SAMRecord, header::record::value::Map},
 };
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::{record, Record, Value};
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{record, LabeledError, Record, Value};
 
 /// Columns in a BAM/SAM file
 pub const BAM_COLUMNS: &[&str] = &[
@@ -54,65 +54,62 @@ pub fn parse_header(call: &EvaluatedCall, h: &sam::Header) -> Value {
 
     // @SQ.
     let reference_sequences = h.reference_sequences();
-    let reference_sequences_nuon = Value::record(Record {
-        cols: reference_sequences.keys().map(|e| e.to_string()).collect(),
-        vals: reference_sequences
-            .iter()
-            .map(|(name, f)| Value::record(record! {
-                    "sequence_name" => call.head.with_string(name),
-                    "sequence_length" => Value::int(usize::from(f.length()) as i64, call.head),
-                    "alternate_locus" => call.head.with_string_or(f.alternative_locus(), "No alternative locus."),
-                    "alternate_names" => call.head.with_string_or(f.alternative_names(), "No alternative names."),
-                    "assembly_id" => call.head.with_string_or(f.assembly_id(), "No assembly ID."),
-                    "description" => call.head.with_string_or(f.description(), "No description"),
-                    "md5" => call.head.with_string_or(f.md5_checksum(), "No md5 checksum"),
-                    "species" => call.head.with_string_or(f.species(), "No species name"),
-                    "molecule_topology" => call.head.with_string_or(f.molecule_topology(), "No molecule topology"),
-                    "uri" => call.head.with_string_or(f.uri(), "No URI"),
-                }, call.head)
-            )
-            .collect() },
+    let reference_sequences_nuon = Value::record(Record::from_raw_cols_vals(reference_sequences.keys().map(|e| e.to_string()).collect(), reference_sequences
+    .iter()
+    .map(|(name, f)| Value::record(record! {
+            "sequence_name" => call.head.with_string(name),
+            "sequence_length" => Value::int(usize::from(f.length()) as i64, call.head),
+            "alternate_locus" => call.head.with_string_or(f.alternative_locus(), "No alternative locus."),
+            "alternate_names" => call.head.with_string_or(f.alternative_names(), "No alternative names."),
+            "assembly_id" => call.head.with_string_or(f.assembly_id(), "No assembly ID."),
+            "description" => call.head.with_string_or(f.description(), "No description"),
+            "md5" => call.head.with_string_or(f.md5_checksum(), "No md5 checksum"),
+            "species" => call.head.with_string_or(f.species(), "No species name"),
+            "molecule_topology" => call.head.with_string_or(f.molecule_topology(), "No molecule topology"),
+            "uri" => call.head.with_string_or(f.uri(), "No URI"),
+        }, call.head)
+    )
+    .collect(), call.head, call.head).unwrap(),
         call.head
     );
 
     // @RG
     let read_groups = h.read_groups();
-    let read_groups_nuon = Value::record(Record {
-        cols: read_groups.keys().cloned().collect(),
-        vals: read_groups
-            .iter()
-            .map(|(id, f)| Value::record(record! {
-                    "id" => call.head.with_string(id),
-                    "barcode" => call.head.with_string_or(f.barcode(), "No barcode"),
-                    "sequencing_center" => call.head.with_string_or(f.sequencing_center(), "No sequencing center"),
-                    "description" => call.head.with_string_or(f.description(), "No description"),
-                    // no date?
-                    // "date",
-                    "flow_order" => call.head.with_string_or(f.flow_order(), "No flow order"),
-                    "key_sequence" => call.head.with_string_or(f.key_sequence(), "No key sequence"),
-                    "library" => call.head.with_string_or(f.library(), "No library"),
-                    "program" => call.head.with_string_or(f.program(), "No program"),
-                    "platform" => call.head.with_string_or(f.platform(), "No platform"),
-                    "predicted_insert_size" => Value::int(
-                         f.predicted_median_insert_size()
-                                .map(|e| e as i64)
-                                .unwrap_or(0),
-                    call.head
-                ), // CAPILLARY, DNBSEQ (MGI/BGI), ELEMENT, HELICOS, ILLUMINA, IONTORRENT, LS454, ONT (Oxford Nanopore), PACBIO (Pacific Biosciences), SOLID, and ULTIMA
-                    "platform_model" => call.head.with_string_or(f.platform_model(), "No platform model"),
-                    "platform_unit" => call.head.with_string_or(f.platform_unit(), "No platform unit"),
-                    "sample" => call.head.with_string_or(f.sample(), "No sample"),
-                }, call.head
-            ))
-            .collect() },
+    let read_groups_nuon = Value::record(Record::from_raw_cols_vals(read_groups.keys().cloned().collect(), read_groups
+    .iter()
+    .map(|(id, f)| Value::record(record! {
+            "id" => call.head.with_string(id),
+            "barcode" => call.head.with_string_or(f.barcode(), "No barcode"),
+            "sequencing_center" => call.head.with_string_or(f.sequencing_center(), "No sequencing center"),
+            "description" => call.head.with_string_or(f.description(), "No description"),
+            // no date?
+            // "date",
+            "flow_order" => call.head.with_string_or(f.flow_order(), "No flow order"),
+            "key_sequence" => call.head.with_string_or(f.key_sequence(), "No key sequence"),
+            "library" => call.head.with_string_or(f.library(), "No library"),
+            "program" => call.head.with_string_or(f.program(), "No program"),
+            "platform" => call.head.with_string_or(f.platform(), "No platform"),
+            "predicted_insert_size" => Value::int(
+                 f.predicted_median_insert_size()
+                        .map(|e| e as i64)
+                        .unwrap_or(0),
+            call.head
+        ), // CAPILLARY, DNBSEQ (MGI/BGI), ELEMENT, HELICOS, ILLUMINA, IONTORRENT, LS454, ONT (Oxford Nanopore), PACBIO (Pacific Biosciences), SOLID, and ULTIMA
+            "platform_model" => call.head.with_string_or(f.platform_model(), "No platform model"),
+            "platform_unit" => call.head.with_string_or(f.platform_unit(), "No platform unit"),
+            "sample" => call.head.with_string_or(f.sample(), "No sample"),
+        }, call.head
+    ))
+    .collect(), call.head, call.head).unwrap(),
          call.head,
     );
 
     // @PG
     let programs = h.programs();
-    let programs_nuon = Value::record(Record {
-        cols: programs.keys().cloned().collect(),
-        vals: programs
+
+    let programs_nuon = Value::record(Record::from_raw_cols_vals(
+        programs.keys().cloned().collect(),
+        programs
             .iter()
             .map(|(id, f)| Value::record(record! {
                     "id" => call.head.with_string(id),
@@ -121,10 +118,11 @@ pub fn parse_header(call: &EvaluatedCall, h: &sam::Header) -> Value {
                     "previous_id" => call.head.with_string_or(f.previous_id(), "No previous ID"),
                     "description" => call.head.with_string_or(f.description(), "No description"),
                     "version" => call.head.with_string_or(f.version(), "No version"),
-    }, call.head
-            ))
-            .collect() },
+                }, call.head)
+            ).collect(),
         call.head,
+        call.head
+    ).unwrap(), call.head
     );
 
     // @CO
@@ -183,19 +181,18 @@ pub fn from_bam_inner(call: &EvaluatedCall, input: &Value) -> Result<Value, Labe
     let stream = match input {
         Value::Binary { val, .. } => val,
         other => {
-            return Err(LabeledError {
-                label: "Input should be binary.".into(),
-                msg: format!("requires binary input, got {}", other.get_type()),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!(
+                "requires binary input, got {}",
+                other.get_type()
+            ))
+            .with_label("Input should be binary.", call.head))
         }
     };
 
     let mut reader = bam::Reader::new(stream.as_slice());
-    let raw_header = reader.read_header().map_err(|err| LabeledError {
-        label: "Could not read header.".into(),
-        msg: format!("error reading header at {}", err),
-        span: Some(call.head),
+    let raw_header = reader.read_header().map_err(|err| {
+        LabeledError::new(format!("error reading header at {}", err))
+            .with_label("Could not read header.", call.head)
     })?;
 
     // TODO: better error handling here.
@@ -216,10 +213,9 @@ pub fn from_bam_inner(call: &EvaluatedCall, input: &Value) -> Result<Value, Labe
     let value_records = reader
         .records(&raw_header)
         .map(|record| {
-            let r = record.map_err(|e| LabeledError {
-                label: "Record reading failed.".into(),
-                msg: format!("cause of failure: {}", e),
-                span: Some(call.head),
+            let r = record.map_err(|e| {
+                LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Record reading failed.", call.head)
             })?;
 
             let inner_record = Record::from_iter(
@@ -249,20 +245,17 @@ pub fn from_sam_inner(call: &EvaluatedCall, input: &Value) -> Result<Value, Labe
     let stream = input.as_binary().unwrap();
 
     let mut reader = sam::Reader::new(stream);
-    let header = reader.read_header().map_err(|err| LabeledError {
-        label: "Unable to parse SAM header".into(),
-        msg: format!("{}", err),
-        span: Some(call.head),
+    let header = reader.read_header().map_err(|err| {
+        LabeledError::new(format!("{}", err)).with_label("Unable to parse SAM header", call.head)
     })?;
     let header_nuon = parse_header(call, &header);
 
     let value_records = reader
         .records(&header)
         .map(|record| {
-            let r = record.map_err(|e| LabeledError {
-                label: "Record reading failed.".into(),
-                msg: format!("cause of failure: {}", e),
-                span: Some(call.head),
+            let r = record.map_err(|e| {
+                LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Record reading failed.", call.head)
             })?;
 
             let inner_record = Record::from_iter(
