@@ -3,8 +3,8 @@ use noodles::{
     bcf::{self, header::StringMaps},
     bgzf, vcf,
 };
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::{record, Record, Value};
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{record, LabeledError, Record, Value};
 
 use crate::bio_format::Compression;
 use std::io::{BufRead, BufReader};
@@ -205,11 +205,8 @@ fn read_bcf_header(
         let raw_header = match r.read_header() {
             Ok(e) => e,
             Err(e) => {
-                return Err(LabeledError {
-                    label: "Could not read header.".into(),
-                    msg: format!("header unreadable due to {}", e),
-                    span: Some(call.head),
-                })
+                return Err(LabeledError::new(format!("header unreadable due to {}", e))
+                    .with_label("Could not read header.", call.head))
             }
         };
 
@@ -238,11 +235,8 @@ fn iterate_bcf_records<R: BufRead>(
         let r = match record {
             Ok(rec) => rec,
             Err(e) => {
-                return Err(LabeledError {
-                    label: "Record reading failed.".into(),
-                    msg: format!("cause of failure: {}", e),
-                    span: Some(call.head),
-                })
+                return Err(LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Record reading failed.", call.head))
             }
         };
 
@@ -268,11 +262,11 @@ pub fn from_bcf_inner(
     let stream = match input {
         Value::Binary { val, .. } => val,
         other => {
-            return Err(LabeledError {
-                label: "Input should be binary.".into(),
-                msg: format!("requires binary input, got {}", other.get_type()),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!(
+                "requires binary input, got {}",
+                other.get_type()
+            ))
+            .with_label("Input should be binary.", call.head))
         }
     };
 
@@ -323,11 +317,8 @@ fn read_vcf_header(
         let raw_header = match r.read_header() {
             Ok(rh) => rh,
             Err(e) => {
-                return Err(LabeledError {
-                    label: "Failed to read raw VCF header.".into(),
-                    msg: format!("cause of failure: {}", e),
-                    span: Some(call.head),
-                })
+                return Err(LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Failed to read raw VCF header.", call.head))
             }
         };
 
@@ -353,11 +344,8 @@ fn iterate_vcf_records<R: BufRead>(
         let r = match record {
             Ok(rec) => rec,
             Err(e) => {
-                return Err(LabeledError {
-                    label: "Record reading failed.".into(),
-                    msg: format!("cause of failure: {}", e),
-                    span: Some(call.head),
-                })
+                return Err(LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Record reading failed.", call.head))
             }
         };
 
@@ -383,11 +371,8 @@ pub fn from_vcf_inner(
     let stream = match input.as_binary() {
         Ok(s) => s,
         Err(e) => {
-            return Err(LabeledError {
-                label: "Could not stream input as binary.".into(),
-                msg: format!("cause of failure: {}", e),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("Could not stream input as binary.", call.head))
         }
     };
 
