@@ -1,6 +1,6 @@
 use noodles::bed;
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::{Record, Value};
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{LabeledError, Record, Value};
 
 use super::SpanExt;
 
@@ -21,11 +21,8 @@ pub fn from_bed_inner(call: &EvaluatedCall, input: Value) -> Result<Vec<Value>, 
     let bytes = match input.as_binary() {
         Ok(b) => b,
         Err(e) => {
-            return Err(LabeledError {
-                label: "Value conversion to binary failed.".into(),
-                msg: format!("cause of failure: {}", e),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("Value conversion to binary failed.", call.head))
         }
     };
 
@@ -34,10 +31,9 @@ pub fn from_bed_inner(call: &EvaluatedCall, input: Value) -> Result<Vec<Value>, 
     let mut records = Vec::new();
 
     for result in reader.records::<BED_COLUMN_NUMBER>() {
-        let record = result.map_err(|e| LabeledError {
-            label: "Failed reading a record in the BED file".into(),
-            msg: format!("{e}"),
-            span: Some(call.head),
+        let record = result.map_err(|e| {
+            LabeledError::new(format!("{e}"))
+                .with_label("Failed reading a record in the BED file", call.head)
         })?;
 
         let mut row = Vec::new();
