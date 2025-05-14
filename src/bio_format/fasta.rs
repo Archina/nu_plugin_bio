@@ -9,8 +9,8 @@ use noodles::fastq::{
     Writer as FastqWriter,
 };
 use noodles::{bgzf, fasta, fastq};
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::Value;
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{LabeledError, Value};
 
 use crate::bio_format::{Compression, SpanExt};
 
@@ -37,10 +37,9 @@ fn iterate_fastq_records<R: BufRead>(
 ) -> Result<(), LabeledError> {
     // iterate over the records.
     for record in reader.records() {
-        let r = record.map_err(|e| LabeledError {
-            label: "Record reading failed.".into(),
-            msg: format!("cause of failure: {}", e),
-            span: Some(call.head),
+        let r = record.map_err(|e| {
+            LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("Record reading failed.", call.head)
         })?;
 
         let mut vec_vals = Vec::new();
@@ -75,10 +74,9 @@ pub fn from_fastq_inner(
     let description = call.has_flag("description");
     let quality_scores = call.has_flag("quality-scores");
 
-    let bytes = input.as_binary().map_err(|e| LabeledError {
-        label: "Value conversion to binary failed.".into(),
-        msg: format!("cause of failure: {}", e),
-        span: Some(call.head),
+    let bytes = input.as_binary().map_err(|e| {
+        LabeledError::new(format!("cause of failure: {}", e))
+            .with_label("Value conversion to binary failed.", call.head)
     })?;
 
     let reader = match gz {
@@ -89,7 +87,7 @@ pub fn from_fastq_inner(
         }
     };
 
-    let cols = match (description, quality_scores) {
+    let cols = match (description.is_ok(), quality_scores.is_ok()) {
         (false, false) => vec!["id".to_string(), "sequence".to_string()],
         (true, false) => vec![
             "id".to_string(),
@@ -116,16 +114,16 @@ pub fn from_fastq_inner(
             *u,
             call,
             &mut value_records,
-            description,
-            quality_scores,
+            description.is_ok(),
+            quality_scores.is_ok(),
             cols,
         )?,
         FastqReader::Compressed(c) => iterate_fastq_records(
             *c,
             call,
             &mut value_records,
-            description,
-            quality_scores,
+            description.is_ok(),
+            quality_scores.is_ok(),
             cols,
         )?,
     };
@@ -142,10 +140,9 @@ fn iterate_fasta_records<R: BufRead>(
 ) -> Result<(), LabeledError> {
     // iterate over the records
     for record in reader.records() {
-        let r = record.map_err(|e| LabeledError {
-            label: "Record reading failed.".into(),
-            msg: format!("cause of failure: {}", e),
-            span: Some(call.head),
+        let r = record.map_err(|e| {
+            LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("Record reading failed.", call.head)
         })?;
 
         let mut vec_vals = Vec::new();
@@ -186,23 +183,24 @@ pub fn from_fasta_inner(
         }
     };
 
-    let cols = match description {
-        false => vec!["id".to_string(), "sequence".to_string()],
-        true => vec![
+    let cols = if description.is_ok() {
+        vec![
             "id".to_string(),
             "description".to_string(),
             "sequence".to_string(),
-        ],
+        ]
+    } else {
+        vec!["id".to_string(), "sequence".to_string()]
     };
 
     let mut value_records = Vec::new();
 
     match reader {
         FastaReader::Uncompressed(u) => {
-            iterate_fasta_records(*u, call, &mut value_records, description, cols)?
+            iterate_fasta_records(*u, call, &mut value_records, description.is_ok(), cols)?
         }
         FastaReader::Compressed(c) => {
-            iterate_fasta_records(c, call, &mut value_records, description, cols)?
+            iterate_fasta_records(c, call, &mut value_records, description.is_ok(), cols)?
         }
     };
 
@@ -218,30 +216,38 @@ pub fn nuon_to_fasta(call: &EvaluatedCall, input: &Value) -> Result<Value, Label
     if let Ok(list) = input.as_list() {
         for el in list {
             let inner = el.as_record()?;
-            let mut vals = inner.vals.clone();
-            let last = vals.pop().unwrap();
-            let sequence = last.as_string()?;
+            let mut vals = inner.values();
 
-            let id = vals.get(0).map(|e| e.as_string().unwrap());
-            let description = vals.get(1).map(|e| e.as_string().unwrap());
+            let id = vals
+                .next()
+                .and_then(|v| v.as_str().ok())
+                .unwrap_or_default()
+                .to_string();
 
-            let fa_def = FastaDefinition::new(id.unwrap_or("".into()), description);
-            let fa_seq = Sequence::from(sequence.into_bytes());
+            // let id = vals.nth(0).map(|e| e.as_str().unwrap());
+            let description = vals
+                .next()
+                .and_then(|e| e.as_str().ok())
+                .map(|v| v.to_string());
+
+            let sequence = vals.last().unwrap().as_str()?;
+
+            let fa_def = FastaDefinition::new(id, description);
+            let fa_seq = Sequence::from(sequence.as_bytes().iter().cloned().collect::<Vec<_>>());
 
             out.write_record(&FastaRecord::new(fa_def.clone(), fa_seq))
-                .map_err(|err| LabeledError {
-                    label: format!("Error in writing record ({}) to fasta", fa_def),
-                    msg: err.to_string(),
-                    span: Some(call.head),
+                .map_err(|err| {
+                    LabeledError::new(err.to_string()).with_label(
+                        format!("Error in writing record ({}) to fasta", fa_def),
+                        call.head,
+                    )
                 })?;
         }
     }
 
     let bytes = out.get_ref();
-    let out_final = String::from_utf8(bytes.clone()).map_err(|err| LabeledError {
-        label: "Can't format bytes as UTF-8".into(),
-        msg: err.to_string(),
-        span: Some(call.head),
+    let out_final = String::from_utf8(bytes.clone()).map_err(|err| {
+        LabeledError::new(err.to_string()).with_label("Can't format bytes as UTF-8", call.head)
     })?;
 
     Ok(Value::string(out_final, call.head))
@@ -256,53 +262,70 @@ pub fn nuon_to_fastq(call: &EvaluatedCall, input: &Value) -> Result<Value, Label
         let (description, quality) = match first {
             Some(e) => {
                 let first_inner = e.as_record()?;
-                let cols = first_inner.cols.clone();
+                let mut cols = first_inner.columns();
                 (
-                    cols.contains(&String::from("description")),
-                    cols.contains(&String::from("quality_scores")),
+                    cols.position(|c| *c == String::from("description"))
+                        .is_some(),
+                    cols.position(|c| *c == String::from("quality_scores")),
                 )
             }
             None => {
                 // what's the error?
-                return Err(LabeledError {
-                    label: "No value".into(),
-                    msg: "There was no first value to call `to fastq` on".into(),
-                    span: Some(call.head),
-                });
+                return Err(
+                    LabeledError::new("There was no first value to call `to fastq` on")
+                        .with_label("No value", call.head),
+                );
             }
         };
 
         // if we don't have quality scores no point going further.
-        if !quality {
-            return Err(LabeledError {
-                label: "No quality scores".into(),
-                msg: "Consider using `to fasta` if you don't have any quality scores, or pass the -q option on a fastq".into(),
-                span: Some(call.head),
-            });
+        if quality.is_none() {
+            return Err(LabeledError::new("Consider using `to fasta` if you don't have any quality scores, or pass the -q option on a fastq").with_label("No quality scores", call.head));
         }
 
         for el in list {
             let inner = el.as_record()?;
             // we need to check the columns.
-            let mut vals = inner.vals.clone();
-            let last = vals.pop().unwrap();
-            let sequence = last.as_string()?;
+            let mut vals = inner.values().cloned();
 
-            let id = vals.get(0).map(|e| e.as_string().unwrap());
+            let id = vals
+                .next()
+                .and_then(|e| e.as_str().ok().map(|str| str.to_string()));
 
-            let (d, q) = match (description, quality) {
-                (true, true) => {
-                    // we got both
-                    let d = vals.get(1).map(|e| e.as_string().unwrap());
-                    let q = vals.get(2).map(|e| e.as_string().unwrap());
-                    (d, q)
-                }
-                (false, true) => {
-                    let q = vals.get(1).map(|e| e.as_string().unwrap());
-                    (None, q)
-                }
-                _ => unreachable!(),
+            let d = if description {
+                vals.next()
+                    .and_then(|e| e.as_str().ok().map(|str| str.to_string()))
+            } else {
+                None
             };
+            let q = vals
+                .next()
+                .and_then(|e| e.as_str().ok().map(|str| str.to_string()));
+
+            // let (d, q) = match (description, quality.is_some()) {
+            //     (true, true) => {
+            //         // we got both
+            //         let d = vals
+            //             .nth(1)
+            //             .and_then(|e| e.as_str().ok().map(|str| str.to_string()));
+            //         let q = vals
+            //             .nth(2)
+            //             .and_then(|e| e.as_str().ok().map(|str| str.to_string()));
+            //         (d, q)
+            //     }
+            //     (false, true) => {
+            //         let q = vals
+            //             .nth(1)
+            //             .and_then(|e| e.as_str().ok().map(|str| str.to_string()));
+            //         (None, q)
+            //     }
+            //     _ => unreachable!(),
+            // };
+
+            let sequence = vals
+                .last()
+                .and_then(|v| v.as_str().ok().map(|str| str.to_string()))
+                .unwrap_or_default();
 
             let fq_def = FastqDefinition::new(id.unwrap_or("".into()), d.unwrap_or("".into()));
 
@@ -311,19 +334,18 @@ pub fn nuon_to_fastq(call: &EvaluatedCall, input: &Value) -> Result<Value, Label
                 sequence.as_bytes(),
                 q.unwrap_or("".into()).as_bytes(),
             ))
-            .map_err(|err| LabeledError {
-                label: format!("Error in writing record ({:?}) to fastq", fq_def),
-                msg: err.to_string(),
-                span: Some(call.head),
+            .map_err(|err| {
+                LabeledError::new(err.to_string()).with_label(
+                    format!("Error in writing record ({:?}) to fastq", fq_def),
+                    call.head,
+                )
             })?;
         }
     }
 
     let bytes = out.get_ref();
-    let out_final = String::from_utf8(bytes.clone()).map_err(|err| LabeledError {
-        label: "Can't format bytes as UTF-8".into(),
-        msg: err.to_string(),
-        span: Some(call.head),
+    let out_final = String::from_utf8(bytes.clone()).map_err(|err| {
+        LabeledError::new(err.to_string()).with_label("Can't format bytes as UTF-8", call.head)
     })?;
 
     Ok(Value::string(out_final, call.head))
