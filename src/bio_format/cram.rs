@@ -1,8 +1,8 @@
 /// The CRAM format
 use noodles::cram;
 use noodles::sam;
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::{record, Record, Value};
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{record, LabeledError, Record, Value};
 
 use crate::bio_format::bam::{create_record_values, parse_header, BAM_COLUMNS};
 // TODO: also allow the reference to be passed, so we can view the alignment sequences?
@@ -13,11 +13,11 @@ pub fn from_cram_inner(call: &EvaluatedCall, input: &Value) -> Result<Value, Lab
     let stream = match input {
         Value::Binary { val, .. } => val,
         other => {
-            return Err(LabeledError {
-                label: "Input should be binary.".into(),
-                msg: format!("requires binary input, got {}", other.get_type()),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!(
+                "requires binary input, got {}",
+                other.get_type()
+            ))
+            .with_label("Input should be binary.", call.head))
         }
     };
 
@@ -26,22 +26,16 @@ pub fn from_cram_inner(call: &EvaluatedCall, input: &Value) -> Result<Value, Lab
     match reader.read_file_definition() {
         Ok(_) => (),
         Err(e) => {
-            return Err(LabeledError {
-                label: "Could not read CRAM file definition.".into(),
-                msg: format!("cause of failure: {}", e),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("Could not read CRAM file definition.", call.head))
         }
     };
 
     let header: sam::Header = match reader.read_file_header() {
         Ok(s) => s,
         Err(e) => {
-            return Err(LabeledError {
-                label: "CRAM file header reading failed.".into(),
-                msg: format!("cause of failure: {}", e),
-                span: Some(call.head),
-            })
+            return Err(LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("CRAM file header reading failed.", call.head))
         }
     };
 
