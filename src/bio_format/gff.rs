@@ -1,7 +1,7 @@
 /// The GFF format
 use noodles::gff;
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::{Record, Value};
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{LabeledError, Record, Value};
 
 use super::SpanExt;
 
@@ -51,11 +51,8 @@ pub fn from_gff_inner(call: &EvaluatedCall, input: &Value) -> Result<Vec<Value>,
         let r = match record {
             Ok(rec) => rec,
             Err(e) => {
-                return Err(LabeledError {
-                    label: "Record reading failed.".into(),
-                    msg: format!("cause of failure: {}", e),
-                    span: Some(call.head),
-                })
+                return Err(LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Record reading failed.", call.head))
             }
         };
 

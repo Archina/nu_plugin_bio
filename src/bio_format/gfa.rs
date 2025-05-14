@@ -6,8 +6,8 @@ use gfa::{
     optfields::{OptField, OptFieldVal},
     parser::GFAParser,
 };
-use nu_plugin::{EvaluatedCall, LabeledError};
-use nu_protocol::{record, Value};
+use nu_plugin::EvaluatedCall;
+use nu_protocol::{record, LabeledError, Value};
 use std::io::{BufRead, BufReader};
 
 use super::{Compression, SpanExt};
@@ -27,10 +27,9 @@ fn string_from_utf8(
     call: &EvaluatedCall,
     context: &str,
 ) -> Result<String, LabeledError> {
-    String::from_utf8(inner).map_err(|e| LabeledError {
-        label: "Could convert bytes to string.".into(),
-        msg: format!("{}: {}", context, e),
-        span: Some(call.head),
+    String::from_utf8(inner).map_err(|e| {
+        LabeledError::new(format!("{}: {}", context, e))
+            .with_label("Could convert bytes to string.", call.head)
     })
 }
 
@@ -112,10 +111,9 @@ fn lines_to_nuon<R: BufRead>(
     call: &EvaluatedCall,
 ) -> Result<(), LabeledError> {
     for line in gfa_reader {
-        let line = line.map_err(|e| LabeledError {
-            label: "Could not read a line in the GFA.".into(),
-            msg: format!("cause of failure: {}", e),
-            span: Some(call.head),
+        let line = line.map_err(|e| {
+            LabeledError::new(format!("cause of failure: {}", e))
+                .with_label("Could not read a line in the GFA.", call.head)
         })?;
         // if this not added then
         if line.is_empty() {
@@ -243,11 +241,8 @@ fn lines_to_nuon<R: BufRead>(
             // I don't have access to the .tolerance field...
             // Err(err) if err.can_safely_continue(&parser.tolerance) => (),
             Err(e) => {
-                return Err(LabeledError {
-                    label: "Could not stream input as binary.".into(),
-                    msg: format!("cause of failure: {}", e),
-                    span: Some(call.head),
-                })
+                return Err(LabeledError::new(format!("cause of failure: {}", e))
+                    .with_label("Could not stream input as binary.", call.head))
             }
         };
     }
@@ -261,10 +256,9 @@ pub fn from_gfa_inner(
 ) -> Result<Value, LabeledError> {
     let parser: GFAParser<Vec<u8>, Vec<OptField>> = GFAParser::new();
 
-    let bytes = input.as_binary().map_err(|e| LabeledError {
-        label: "Value conversion to binary failed.".into(),
-        msg: format!("cause of failure: {}", e),
-        span: Some(call.head),
+    let bytes = input.as_binary().map_err(|e| {
+        LabeledError::new(format!("cause of failure: {}", e))
+            .with_label("Value conversion to binary failed.", call.head)
     })?;
 
     let reader = BufReader::new(bytes);
