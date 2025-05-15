@@ -138,8 +138,6 @@ impl Plugin for Bio {
 //         input: &Value,
 //     ) -> Result<Value, LabeledError> {
 //         match name {
-//             "from fasta" => self.from_fasta(call, input, Compression::Uncompressed),
-//             "from fa" => self.from_fasta(call, input, Compression::Uncompressed),
 //             "from fastq" => self.from_fastq(call, input, Compression::Uncompressed),
 //             "from fq" => self.from_fastq(call, input, Compression::Uncompressed),
 //             "from fasta.gz" => self.from_fasta(call, input, Compression::Gzipped),
