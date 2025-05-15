@@ -11,6 +11,8 @@ impl Plugin for Bio {
 
     fn commands(&self) -> Vec<Box<dyn nu_plugin::PluginCommand<Plugin = Self>>> {
         vec![
+            Box::new(from::bam::Command::bam()),
+            Box::new(from::bam::Command::sam()),
             Box::new(from::bed::Command),
             Box::new(from::fasta::Command::fasta()),
             Box::new(from::fasta::Command::fa()),

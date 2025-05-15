@@ -27,7 +27,7 @@ pub struct Command {
     compression: Compression,
 }
 
-impl Command{
+impl Command {
     fn new(f: File, c: Compression) -> Self {
         Self {
             name: format!("from {}", super::file_name_from(&f, &c)),

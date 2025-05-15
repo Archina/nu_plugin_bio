@@ -1,8 +1,9 @@
 use crate::bio_format::Compression;
 
+pub mod bam;
+pub mod bed;
 pub mod fasta;
 pub mod fastq;
-pub mod bed;
 
 fn file_extension_from(displayable: &dyn std::fmt::Display, c: &Compression) -> String {
     format!(".{}", file_name_from(displayable, c))
