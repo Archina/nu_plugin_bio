@@ -22,6 +22,7 @@ impl Plugin for Bio {
             Box::new(from::fastq::Command::fq()),
             Box::new(from::fastq::Command::fastq_gz()),
             Box::new(from::fastq::Command::fq_gz()),
+            Box::new(from::gff::Command),
         ]
     }
 }
