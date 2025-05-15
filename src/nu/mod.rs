@@ -1,6 +1,7 @@
 use nu_plugin::Plugin;
 
 pub mod from;
+pub mod to;
 
 pub struct Bio;
 
@@ -30,6 +31,8 @@ impl Plugin for Bio {
             Box::new(from::gfa::gfa()),
             Box::new(from::gfa::gfa_gz()),
             Box::new(from::gff::Command),
+            Box::new(to::fasta::Command),
+            Box::new(to::fastq::Command),
         ]
     }
 }

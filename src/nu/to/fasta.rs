@@ -1,4 +1,4 @@
-use crate::bio::from_gff;
+use crate::bio::to_fasta;
 use nu_plugin::SimplePluginCommand;
 use nu_protocol::{Signature, Type};
 
@@ -8,11 +8,11 @@ impl SimplePluginCommand for Command {
     type Plugin = crate::Bio;
 
     fn name(&self) -> &str {
-        "from gff"
+        "to fasta"
     }
 
     fn description(&self) -> &str {
-        "Parse a GFF file.\nReturns a table."
+        "Print a parsed fasta object to a string"
     }
 
     fn signature(&self) -> nu_protocol::Signature {
@@ -28,11 +28,6 @@ impl SimplePluginCommand for Command {
         call: &nu_plugin::EvaluatedCall,
         input: &nu_protocol::Value,
     ) -> Result<nu_protocol::Value, nu_protocol::LabeledError> {
-        from_gff(call, input)
+        to_fasta(call, input)
     }
 }
-
-//             PluginSignature::build("to fasta")
-//                 .usage("Print a parsed fasta object to a string"),
-
-//             "to fasta" => self.to_fasta(call, input),

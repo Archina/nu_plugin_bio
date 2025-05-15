@@ -1,7 +1,7 @@
 use super::{file_extension_from, file_name_from};
-use crate::bio_format::{fasta::from_fasta_inner, Compression};
+use crate::{bio::from_fasta, bio_format::Compression};
 use nu_plugin::SimplePluginCommand;
-use nu_protocol::{Signature, Span, Type, Value};
+use nu_protocol::{Signature, Type, Value};
 
 enum File {
     Fasta,
@@ -92,7 +92,6 @@ impl SimplePluginCommand for Command {
         call: &nu_plugin::EvaluatedCall,
         input: &Value,
     ) -> Result<Value, nu_protocol::LabeledError> {
-        from_fasta_inner(call, input, &self.compression)
-            .map(|list| Value::list(list, Span::unknown()))
+        from_fasta(call, input, &self.compression)
     }
 }

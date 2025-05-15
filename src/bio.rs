@@ -12,9 +12,9 @@ use nu_protocol::{LabeledError, Value};
 pub fn from_fasta(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
-    let value_records = from_fasta_inner(call, input, &gz)?;
+    let value_records = from_fasta_inner(call, input, gz)?;
 
     Ok(Value::list(value_records, call.head))
 }
