@@ -7,5 +7,4 @@ mod bio_format;
 /// Nushell logic handling.
 mod nu;
 
-/// Expose the [`Bio`] struct here.
-pub use bio::Bio;
+pub use nu::Bio;

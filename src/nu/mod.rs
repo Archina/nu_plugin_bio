@@ -1,7 +1,8 @@
-use crate::Bio;
 use nu_plugin::Plugin;
 
 pub mod from;
+
+pub struct Bio;
 
 impl Plugin for Bio {
     fn version(&self) -> String {

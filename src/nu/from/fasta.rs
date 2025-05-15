@@ -6,7 +6,7 @@ use crate::bio_format::fasta::from_fasta_inner;
 pub struct Command;
 
 impl SimplePluginCommand for Command {
-    type Plugin = crate::Bio;
+    type Plugin = crate::nu::Bio;
 
     fn name(&self) -> &str {
         "from fasta"

@@ -9,91 +9,82 @@ use crate::bio_format::Compression;
 use nu_plugin::EvaluatedCall;
 use nu_protocol::{LabeledError, Value};
 
-/// We implement a bunch of parsers on the `Bio` struct.
-pub struct Bio;
+pub fn from_fasta(
+    call: &EvaluatedCall,
+    input: &Value,
+    gz: Compression,
+) -> Result<Value, LabeledError> {
+    let value_records = from_fasta_inner(call, input, gz)?;
 
-impl Bio {
-    /// Parsing a fasta into Nushell.
-    pub fn from_fasta(
-        call: &EvaluatedCall,
-        input: &Value,
-        gz: Compression,
-    ) -> Result<Value, LabeledError> {
-        let value_records = from_fasta_inner(call, input, gz)?;
+    Ok(Value::list(value_records, call.head))
+}
 
-        Ok(Value::list(value_records, call.head))
-    }
+pub fn to_fasta(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    nuon_to_fasta(call, input)
+}
 
-    pub fn to_fasta(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        nuon_to_fasta(call, input)
-    }
+/// Parsing a fastq into Nushell.
+pub fn from_fastq(
+    call: &EvaluatedCall,
+    input: &Value,
+    gz: Compression,
+) -> Result<Value, LabeledError> {
+    let value_records = from_fastq_inner(call, input, gz)?;
+    Ok(Value::list(value_records, call.head))
+}
 
-    /// Parsing a fastq into Nushell.
-    pub fn from_fastq(
-        call: &EvaluatedCall,
-        input: &Value,
-        gz: Compression,
-    ) -> Result<Value, LabeledError> {
-        let value_records = from_fastq_inner(call, input, gz)?;
-        Ok(Value::list(value_records, call.head))
-    }
+/// Structured data to fastq
+pub fn to_fastq(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    nuon_to_fastq(call, input)
+}
 
-    /// Structured data to fastq
-    pub fn to_fastq(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        nuon_to_fastq(call, input)
-    }
+/// These B(S)AM functions are quite slow at the moment.
+pub fn from_bam(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    from_bam_inner(call, input)
+}
+/// These B(S)AM functions are quite slow at the moment.
+pub fn from_sam(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    from_sam_inner(call, input)
+}
 
-    /// These B(S)AM functions are quite slow at the moment.
-    pub fn from_bam(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        from_bam_inner(call, input)
-    }
-    /// These B(S)AM functions are quite slow at the moment.
-    pub fn from_sam(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        from_sam_inner(call, input)
-    }
+/// Parse a CRAM file.
+pub fn from_cram(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    from_cram_inner(call, input)
+}
 
-    /// Parse a CRAM file.
-    pub fn from_cram(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        from_cram_inner(call, input)
-    }
+/// Parse a BCF.
+pub fn from_bcf(
+    call: &EvaluatedCall,
+    input: &Value,
+    gz: Compression,
+) -> Result<Value, LabeledError> {
+    from_bcf_inner(call, input, gz)
+}
+/// Parse a VCF.
+pub fn from_vcf(
+    call: &EvaluatedCall,
+    input: &Value,
+    gz: Compression,
+) -> Result<Value, LabeledError> {
+    from_vcf_inner(call, input, gz)
+}
 
-    /// Parse a BCF.
-    pub fn from_bcf(
-        &self,
-        call: &EvaluatedCall,
-        input: &Value,
-        gz: Compression,
-    ) -> Result<Value, LabeledError> {
-        from_bcf_inner(call, input, gz)
-    }
-    /// Parse a VCF.
-    pub fn from_vcf(
-        &self,
-        call: &EvaluatedCall,
-        input: &Value,
-        gz: Compression,
-    ) -> Result<Value, LabeledError> {
-        from_vcf_inner(call, input, gz)
-    }
+/// Parse a GFF.
+pub fn from_gff(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    let value_records = from_gff_inner(call, input)?;
+    Ok(Value::list(value_records, call.head))
+}
 
-    /// Parse a GFF.
-    pub fn from_gff(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        let value_records = from_gff_inner(call, input)?;
-        Ok(Value::list(value_records, call.head))
-    }
+/// Parse a GFA.
+pub fn from_gfa(
+    call: &EvaluatedCall,
+    input: &Value,
+    gz: Compression,
+) -> Result<Value, LabeledError> {
+    from_gfa_inner(call, input, gz)
+}
 
-    /// Parse a GFA.
-    pub fn from_gfa(
-        &self,
-        call: &EvaluatedCall,
-        input: &Value,
-        gz: Compression,
-    ) -> Result<Value, LabeledError> {
-        from_gfa_inner(call, input, gz)
-    }
-
-    /// Parse a BED.
-    pub fn from_bed(&self, call: &EvaluatedCall, input: Value) -> Result<Value, LabeledError> {
-        from_bed_inner(call, input).map(|e| Value::list(e, call.head))
-    }
+/// Parse a BED.
+pub fn from_bed(call: &EvaluatedCall, input: Value) -> Result<Value, LabeledError> {
+    from_bed_inner(call, input).map(|e| Value::list(e, call.head))
 }
