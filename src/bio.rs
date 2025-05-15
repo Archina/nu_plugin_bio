@@ -14,7 +14,7 @@ pub fn from_fasta(
     input: &Value,
     gz: Compression,
 ) -> Result<Value, LabeledError> {
-    let value_records = from_fasta_inner(call, input, gz)?;
+    let value_records = from_fasta_inner(call, input, &gz)?;
 
     Ok(Value::list(value_records, call.head))
 }

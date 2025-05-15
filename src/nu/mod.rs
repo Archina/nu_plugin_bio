@@ -13,6 +13,8 @@ impl Plugin for Bio {
         vec![
             Box::new(from::fasta::Command::fasta()),
             Box::new(from::fasta::Command::fa()),
+            Box::new(from::fasta::Command::fasta_gz()),
+            Box::new(from::fasta::Command::fa_gz()),
         ]
     }
 }

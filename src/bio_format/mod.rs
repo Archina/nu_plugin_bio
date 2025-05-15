@@ -15,6 +15,7 @@ pub mod gfa;
 pub mod gff;
 
 /// Compression enum
+#[derive(PartialEq)]
 pub enum Compression {
     Uncompressed,
     Gzipped,

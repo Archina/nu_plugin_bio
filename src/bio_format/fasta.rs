@@ -168,7 +168,7 @@ fn iterate_fasta_records<R: BufRead>(
 pub fn from_fasta_inner(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Vec<Value>, LabeledError> {
     // parse description flag.
     let description = call.has_flag("description");

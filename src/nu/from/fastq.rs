@@ -1,7 +1,33 @@
 use nu_plugin::SimplePluginCommand;
 use nu_protocol::{Signature, Type, Value};
 
-use crate::bio_format::fasta::from_fastq_inner;
+use crate::bio_format::{fasta::from_fastq_inner, Compression};
+
+enum File {
+    Fastq,
+    Fq,
+}
+
+impl std::fmt::Display for File {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                File::Fastq => "fastq",
+                File::Fq => "fq",
+            }
+        )
+    }
+}
+
+impl File{
+    fn compression(&self) -> Compression{
+        match self{
+            File::Fastq | File::Fq => Compression::Uncompressed,
+        }
+    }
+}
 
 pub struct Command;
 
