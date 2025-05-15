@@ -1,6 +1,6 @@
+use crate::bio::from_cram;
 use nu_plugin::SimplePluginCommand;
 use nu_protocol::{Signature, Type};
-use crate::bio::from_cram;
 
 pub struct Command;
 
