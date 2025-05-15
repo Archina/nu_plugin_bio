@@ -56,7 +56,7 @@ pub fn from_cram(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledEr
 pub fn from_bcf(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     from_bcf_inner(call, input, gz)
 }
@@ -64,7 +64,7 @@ pub fn from_bcf(
 pub fn from_vcf(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     from_vcf_inner(call, input, gz)
 }

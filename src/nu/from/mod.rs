@@ -1,6 +1,7 @@
 use crate::bio_format::Compression;
 
 pub mod bam;
+pub mod bcf;
 pub mod bed;
 pub mod cram;
 pub mod fasta;

@@ -13,6 +13,10 @@ impl Plugin for Bio {
         vec![
             Box::new(from::bam::command_bam()),
             Box::new(from::bam::command_sam()),
+            Box::new(from::bcf::bcf()),
+            Box::new(from::bcf::bcf_gz()),
+            Box::new(from::bcf::vcf()),
+            Box::new(from::bcf::vcf_gz()),
             Box::new(from::bed::Command),
             Box::new(from::cram::Command),
             Box::new(from::fasta::command_fasta()),

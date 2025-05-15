@@ -256,7 +256,7 @@ fn iterate_bcf_records<R: BufRead>(
 pub fn from_bcf_inner(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     // match on file type
     let stream = match input {
@@ -365,7 +365,7 @@ fn iterate_vcf_records<R: BufRead>(
 pub fn from_vcf_inner(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     // match on file type
     let stream = match input.as_binary() {
