@@ -15,7 +15,6 @@ pub struct Bio;
 impl Bio {
     /// Parsing a fasta into Nushell.
     pub fn from_fasta(
-        &self,
         call: &EvaluatedCall,
         input: &Value,
         gz: Compression,
@@ -25,13 +24,12 @@ impl Bio {
         Ok(Value::list(value_records, call.head))
     }
 
-    pub fn to_fasta(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    pub fn to_fasta(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
         nuon_to_fasta(call, input)
     }
 
     /// Parsing a fastq into Nushell.
     pub fn from_fastq(
-        &self,
         call: &EvaluatedCall,
         input: &Value,
         gz: Compression,
