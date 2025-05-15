@@ -85,6 +85,6 @@ pub fn from_gfa(
 }
 
 /// Parse a BED.
-pub fn from_bed(call: &EvaluatedCall, input: Value) -> Result<Value, LabeledError> {
+pub fn from_bed(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
     from_bed_inner(call, input).map(|e| Value::list(e, call.head))
 }

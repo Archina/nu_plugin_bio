@@ -17,7 +17,7 @@ pub const BED_COLUMNS: &[&str] = &[
     "chromEnd",
 ];
 
-pub fn from_bed_inner(call: &EvaluatedCall, input: Value) -> Result<Vec<Value>, LabeledError> {
+pub fn from_bed_inner(call: &EvaluatedCall, input: &Value) -> Result<Vec<Value>, LabeledError> {
     let bytes = match input.as_binary() {
         Ok(b) => b,
         Err(e) => {

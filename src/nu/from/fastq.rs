@@ -1,7 +1,7 @@
 use nu_plugin::SimplePluginCommand;
 use nu_protocol::{Signature, Type, Value};
 
-use crate::bio_format::{fasta::from_fastq_inner, Compression};
+use crate::{bio::from_fastq, bio_format::Compression};
 
 enum File {
     Fastq,
@@ -25,6 +25,42 @@ pub struct Command {
     name: String,
     description: String,
     compression: Compression,
+}
+
+impl Command{
+    fn new(f: File, c: Compression) -> Self {
+        Self {
+            name: format!("from {}", super::file_name_from(&f, &c)),
+            description: if c == Compression::Gzipped {
+                format!(
+                    "Parse a gzipped {} file.\nReturns a table of ID's and sequences.",
+                    super::file_extension_from(&f, &c)
+                )
+            } else {
+                format!(
+                    "Parse a {} file.\nReturns a table of ID's and sequences.",
+                    super::file_extension_from(&f, &c)
+                )
+            },
+            compression: c,
+        }
+    }
+
+    pub fn fastq() -> Self {
+        Self::new(File::Fastq, Compression::Uncompressed)
+    }
+
+    pub fn fq() -> Self {
+        Self::new(File::Fq, Compression::Uncompressed)
+    }
+
+    pub fn fastq_gz() -> Self {
+        Self::new(File::Fastq, Compression::Gzipped)
+    }
+
+    pub fn fq_gz() -> Self {
+        Self::new(File::Fq, Compression::Gzipped)
+    }
 }
 
 impl SimplePluginCommand for Command {
@@ -64,23 +100,7 @@ impl SimplePluginCommand for Command {
         input: &Value,
     ) -> Result<Value, nu_protocol::LabeledError> {
         {
-            let value_records = from_fastq_inner(call, input, &self.compression)?;
-            Ok(Value::list(value_records, call.head))
+            from_fastq(call, input, &self.compression)
         }
     }
 }
-
-//             PluginSignature::build("from fq")
-//                 .usage("Parse a fastq file.\nReturns a table of ID's and sequences.")
-//             "from fq" => self.from_fastq(call, input, Compression::Uncompressed),
-
-//             PluginSignature::build("from fastq.gz")
-//                 .usage("Parse a gzipped fastq file.\nReturns a table of ID's and sequences.")
-// Run
-//             "from fastq.gz" => self.from_fastq(call, input, Compression::Gzipped),
-
-//             PluginSignature::build("from fq.gz")
-//                 .usage("Parse a gzipped fastq file.\nReturns a table of ID's and sequences.")
-//                 .category(Category::Experimental),
-
-//             "from fq.gz" => self.from_fastq(call, input, Compression::Gzipped),
