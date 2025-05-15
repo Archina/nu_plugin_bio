@@ -20,6 +20,16 @@ impl SimplePluginCommand for Command {
         Signature::build(<Self as SimplePluginCommand>::name(self))
             .input_output_types(vec![(Type::String, Type::table())])
             .category(nu_protocol::Category::Formats)
+            .switch(
+                "description",
+                "parse the fastq header description",
+                Some('d'),
+            )
+            .switch(
+                "quality-scores",
+                "parse the fastq quality scores",
+                Some('q'),
+            )
     }
 
     fn run(

@@ -20,6 +20,11 @@ impl SimplePluginCommand for Command {
         Signature::build(<Self as SimplePluginCommand>::name(self))
             .input_output_types(vec![(Type::String, Type::table())])
             .category(nu_protocol::Category::Formats)
+            .switch(
+                "description",
+                "parse the fasta header description",
+                Some('d'),
+            )
     }
 
     fn run(

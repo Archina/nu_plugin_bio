@@ -23,33 +23,12 @@ impl Plugin for Bio {
 //                     Some('d'),
 //                 )
 //                 .category(Category::Experimental),
-//             PluginSignature::build("from fa")
-//                 .usage("Parse a fasta file.\nReturns a table of ID's and sequences.")
-//                 .switch(
-//                     "description",
-//                     "parse the fasta header description",
-//                     Some('d'),
-//                 )
-//                 .category(Category::Experimental),
 //             PluginSignature::build("from fa.gz")
 //                 .usage("Parse a gzipped fasta file.\nReturns a table of ID's and sequences.")
 //                 .switch(
 //                     "description",
 //                     "parse the fasta header description",
 //                     Some('d'),
-//                 )
-//                 .category(Category::Experimental),
-//             PluginSignature::build("from fastq")
-//                 .usage("Parse a fastq file.\nReturns a table of ID's and sequences.")
-//                 .switch(
-//                     "description",
-//                     "parse the fastq header description",
-//                     Some('d'),
-//                 )
-//                 .switch(
-//                     "quality-scores",
-//                     "parse the fastq quality scores",
-//                     Some('q'),
 //                 )
 //                 .category(Category::Experimental),
 //             PluginSignature::build("from fastq.gz")
@@ -138,7 +117,6 @@ impl Plugin for Bio {
 //         input: &Value,
 //     ) -> Result<Value, LabeledError> {
 //         match name {
-//             "from fastq" => self.from_fastq(call, input, Compression::Uncompressed),
 //             "from fq" => self.from_fastq(call, input, Compression::Uncompressed),
 //             "from fasta.gz" => self.from_fasta(call, input, Compression::Gzipped),
 //             "from fa.gz" => self.from_fasta(call, input, Compression::Gzipped),
