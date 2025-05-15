@@ -5,6 +5,7 @@ pub mod bed;
 pub mod cram;
 pub mod fasta;
 pub mod fastq;
+pub mod gfa;
 pub mod gff;
 
 fn file_extension_from(displayable: &dyn std::fmt::Display, c: &Compression) -> String {

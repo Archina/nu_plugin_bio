@@ -252,7 +252,7 @@ fn lines_to_nuon<R: BufRead>(
 pub fn from_gfa_inner(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     let parser: GFAParser<Vec<u8>, Vec<OptField>> = GFAParser::new();
 

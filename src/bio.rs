@@ -79,7 +79,7 @@ pub fn from_gff(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledErr
 pub fn from_gfa(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     from_gfa_inner(call, input, gz)
 }
