@@ -21,9 +21,9 @@ impl std::fmt::Display for File {
     }
 }
 
-impl File{
-    fn compression(&self) -> Compression{
-        match self{
+impl File {
+    fn compression(&self) -> Compression {
+        match self {
             File::Fastq | File::Fq => Compression::Uncompressed,
         }
     }

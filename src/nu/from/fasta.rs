@@ -6,8 +6,6 @@ use crate::bio_format::{fasta::from_fasta_inner, Compression};
 enum File {
     Fasta,
     Fa,
-    FastaGz,
-    FaGz,
 }
 
 impl std::fmt::Display for File {
@@ -16,21 +14,21 @@ impl std::fmt::Display for File {
             f,
             "{}",
             match self {
-                File::Fasta=>"fasta",
-                File::Fa=>"fa",
-                File::FastaGz => "fasta.gz",
-                File::FaGz => "fa.gz",
+                File::Fasta => "fasta",
+                File::Fa => "fa",
             }
         )
     }
 }
 
-impl File{
-    fn compression(&self) -> Compression{
-        match self{
-            File::Fasta | File::Fa => Compression::Uncompressed,
-            File::FastaGz | File::FaGz => Compression::Gzipped,
-        }
+fn file_extension_from(displayable: &dyn std::fmt::Display, c: &Compression) -> String {
+    format!(".{}", file_name_from(displayable, c))
+}
+
+fn file_name_from(displayable: &dyn std::fmt::Display, c: &Compression) -> String {
+    match c {
+        Compression::Uncompressed => format!("{displayable}",),
+        Compression::Gzipped => format!("{displayable}.gz",),
     }
 }
 
@@ -42,37 +40,39 @@ pub struct Command {
 }
 
 impl Command {
-    fn new(f: File) -> Self {
+    fn new(f: File, c: Compression) -> Self {
         Self {
-            name: format!("from {f}"),
-            description: if f.compression() == Compression::Gzipped {
+            name: format!("from {}", file_name_from(&f, &c)),
+            description: if c == Compression::Gzipped {
                 format!(
-                    "Parse a gzipped .{f} file and create a table of ID's and sequences."
+                    "Parse a gzipped {} file and create a table of ID's and sequences.",
+                    file_extension_from(&f, &c)
                 )
             } else {
                 format!(
-                    "Parse text as .{f} file and create a table of ID's and sequences."
+                    "Parse text as {} file and create a table of ID's and sequences.",
+                    file_extension_from(&f, &c)
                 )
             },
             switch_description: format!("parse the {f} header description"),
-            compression: f.compression()
+            compression: c,
         }
     }
 
     pub fn fasta() -> Self {
-        Self::new(File::Fasta)
+        Self::new(File::Fasta, Compression::Uncompressed)
     }
 
     pub fn fa() -> Self {
-        Self::new(File::Fa)
+        Self::new(File::Fa, Compression::Uncompressed)
     }
 
     pub fn fasta_gz() -> Self {
-        Self::new(File::FastaGz)
+        Self::new(File::Fasta, Compression::Gzipped)
     }
 
     pub fn fa_gz() -> Self {
-        Self::new(File::FaGz)
+        Self::new(File::Fa, Compression::Gzipped)
     }
 }
 
