@@ -14,6 +14,7 @@ impl Plugin for Bio {
             Box::new(from::bam::command_bam()),
             Box::new(from::bam::command_sam()),
             Box::new(from::bed::Command),
+            Box::new(from::cram::Command),
             Box::new(from::fasta::command_fasta()),
             Box::new(from::fasta::command_fa()),
             Box::new(from::fasta::command_fasta_gz()),
