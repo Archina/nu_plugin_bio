@@ -18,13 +18,13 @@ impl Command {
 			run
 		}
 	}
+}
 
-    pub fn sam() -> Self {
-        Self::new("sam", Box::new(|call, input| from_sam(call, input)))
-    }
-    pub fn bam() -> Self {
-        Self::new("bam", Box::new(|call, input| from_bam(call, input)))
-    }
+pub fn command_sam() -> Command {
+	Command::new("sam", Box::new(|call, input| from_sam(call, input)))
+}
+pub fn command_bam() -> Command {
+	Command::new("bam", Box::new(|call, input| from_bam(call, input)))
 }
 
 impl SimplePluginCommand for Command{

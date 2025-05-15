@@ -45,22 +45,22 @@ impl Command {
             compression: c,
         }
     }
+}
 
-    pub fn fasta() -> Self {
-        Self::new(File::Fasta, Compression::Uncompressed)
-    }
+pub fn command_fasta() -> Command {
+    Command::new(File::Fasta, Compression::Uncompressed)
+}
 
-    pub fn fa() -> Self {
-        Self::new(File::Fa, Compression::Uncompressed)
-    }
+pub fn command_fa() -> Command {
+    Command::new(File::Fa, Compression::Uncompressed)
+}
 
-    pub fn fasta_gz() -> Self {
-        Self::new(File::Fasta, Compression::Gzipped)
-    }
+pub fn command_fasta_gz() -> Command {
+    Command::new(File::Fasta, Compression::Gzipped)
+}
 
-    pub fn fa_gz() -> Self {
-        Self::new(File::Fa, Compression::Gzipped)
-    }
+pub fn command_fa_gz() -> Command {
+    Command::new(File::Fa, Compression::Gzipped)
 }
 
 impl SimplePluginCommand for Command {
