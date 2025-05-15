@@ -21,44 +21,11 @@ impl Plugin for Bio {
 
 // impl Plugin for Bio {
 
-//             PluginSignature::build("from fa.gz")
-//                 .usage("Parse a gzipped fasta file.\nReturns a table of ID's and sequences.")
-//                 .switch(
-//                     "description",
-//                     "parse the fasta header description",
-//                     Some('d'),
-//                 )
-//                 .category(Category::Experimental),
 //             PluginSignature::build("to fasta")
 //                 .usage("Print a parsed fasta object to a string"),
-//             PluginSignature::build("from fq")
-//                 .usage("Parse a fastq file.\nReturns a table of ID's and sequences.")
-//                 .switch(
-//                     "description",
-//                     "parse the fastq header description",
-//                     Some('d'),
-//                 )
-//                 .switch(
-//                     "quality-scores",
-//                     "parse the fastq quality scores",
-//                     Some('q'),
-//                 )
-//                 .category(Category::Experimental),
-//             PluginSignature::build("from fq.gz")
-//                 .usage("Parse a gzipped fastq file.\nReturns a table of ID's and sequences.")
-//                 .switch(
-//                     "description",
-//                     "parse the fastq header description",
-//                     Some('d'),
-//                 )
-//                 .switch(
-//                     "quality-scores",
-//                     "parse the fastq quality scores",
-//                     Some('q'),
-//                 )
-//                 .category(Category::Experimental),
 //             PluginSignature::build("to fastq")
 //                 .usage("Print out a fastq from structured nuon"),
+
 //             PluginSignature::build("from bam")
 //                 .usage("Parse a BAM file.\nReturns a record containing the header and the body of the BAM file.")
 //                 .category(Category::Experimental),
@@ -102,11 +69,10 @@ impl Plugin for Bio {
 //         input: &Value,
 //     ) -> Result<Value, LabeledError> {
 //         match name {
-//             "from fq" => self.from_fastq(call, input, Compression::Uncompressed),
-//             "from fa.gz" => self.from_fasta(call, input, Compression::Gzipped),
-//             "from fq.gz" => self.from_fastq(call, input, Compression::Gzipped),
+
 //             "to fasta" => self.to_fasta(call, input),
 //             "to fastq" => self.to_fastq(call, input),
+
 //             "from bam" => self.from_bam(call, input),
 //             "from sam" => self.from_sam(call, input),
 //             "from cram" => self.from_cram(call, input),

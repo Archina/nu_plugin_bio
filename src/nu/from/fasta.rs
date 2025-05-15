@@ -1,7 +1,7 @@
+use super::{file_extension_from, file_name_from};
+use crate::bio_format::{fasta::from_fasta_inner, Compression};
 use nu_plugin::SimplePluginCommand;
 use nu_protocol::{Signature, Span, Type, Value};
-
-use crate::bio_format::{fasta::from_fasta_inner, Compression};
 
 enum File {
     Fasta,
@@ -21,21 +21,9 @@ impl std::fmt::Display for File {
     }
 }
 
-fn file_extension_from(displayable: &dyn std::fmt::Display, c: &Compression) -> String {
-    format!(".{}", file_name_from(displayable, c))
-}
-
-fn file_name_from(displayable: &dyn std::fmt::Display, c: &Compression) -> String {
-    match c {
-        Compression::Uncompressed => format!("{displayable}",),
-        Compression::Gzipped => format!("{displayable}.gz",),
-    }
-}
-
 pub struct Command {
     name: String,
     description: String,
-    switch_description: String,
     compression: Compression,
 }
 
@@ -45,7 +33,7 @@ impl Command {
             name: format!("from {}", file_name_from(&f, &c)),
             description: if c == Compression::Gzipped {
                 format!(
-                    "Parse a gzipped {} file and create a table of ID's and sequences.",
+                    "Parse a gzipped {} file.\nReturns a table of ID's and sequences.",
                     file_extension_from(&f, &c)
                 )
             } else {
@@ -54,7 +42,6 @@ impl Command {
                     file_extension_from(&f, &c)
                 )
             },
-            switch_description: format!("parse the {f} header description"),
             compression: c,
         }
     }
@@ -91,7 +78,11 @@ impl SimplePluginCommand for Command {
         Signature::build(<Self as SimplePluginCommand>::name(self))
             .input_output_types(vec![(Type::String, Type::table())])
             .category(nu_protocol::Category::Formats)
-            .switch("description", &self.switch_description, Some('d'))
+            .switch(
+                "description",
+                "parse the fasta header description",
+                Some('d'),
+            )
     }
 
     fn run(

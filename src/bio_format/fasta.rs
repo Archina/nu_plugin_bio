@@ -68,7 +68,7 @@ fn iterate_fastq_records<R: BufRead>(
 pub fn from_fastq_inner(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Vec<Value>, LabeledError> {
     // parse description flag.
     let description = call.has_flag("description");

@@ -21,25 +21,23 @@ impl std::fmt::Display for File {
     }
 }
 
-impl File {
-    fn compression(&self) -> Compression {
-        match self {
-            File::Fastq | File::Fq => Compression::Uncompressed,
-        }
-    }
+pub struct Command {
+    name: String,
+    description: String,
+    compression: Compression,
 }
-
-pub struct Command;
 
 impl SimplePluginCommand for Command {
     type Plugin = crate::nu::Bio;
 
     fn name(&self) -> &str {
-        "from fastq"
+        &self.name
+        // "from fastq"
     }
 
     fn description(&self) -> &str {
-        "Parse a fastq file.\nReturns a table of ID's and sequences."
+        &self.description
+        // "Parse a fastq file.\nReturns a table of ID's and sequences."
     }
 
     fn signature(&self) -> nu_protocol::Signature {
@@ -66,9 +64,23 @@ impl SimplePluginCommand for Command {
         input: &Value,
     ) -> Result<Value, nu_protocol::LabeledError> {
         {
-            let gz = crate::bio_format::Compression::Uncompressed;
-            let value_records = from_fastq_inner(call, input, gz)?;
+            let value_records = from_fastq_inner(call, input, &self.compression)?;
             Ok(Value::list(value_records, call.head))
         }
     }
 }
+
+//             PluginSignature::build("from fq")
+//                 .usage("Parse a fastq file.\nReturns a table of ID's and sequences.")
+//             "from fq" => self.from_fastq(call, input, Compression::Uncompressed),
+
+//             PluginSignature::build("from fastq.gz")
+//                 .usage("Parse a gzipped fastq file.\nReturns a table of ID's and sequences.")
+// Run
+//             "from fastq.gz" => self.from_fastq(call, input, Compression::Gzipped),
+
+//             PluginSignature::build("from fq.gz")
+//                 .usage("Parse a gzipped fastq file.\nReturns a table of ID's and sequences.")
+//                 .category(Category::Experimental),
+
+//             "from fq.gz" => self.from_fastq(call, input, Compression::Gzipped),

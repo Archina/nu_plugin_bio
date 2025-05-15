@@ -27,7 +27,7 @@ pub fn to_fasta(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledErr
 pub fn from_fastq(
     call: &EvaluatedCall,
     input: &Value,
-    gz: Compression,
+    gz: &Compression,
 ) -> Result<Value, LabeledError> {
     let value_records = from_fastq_inner(call, input, gz)?;
     Ok(Value::list(value_records, call.head))
