@@ -3,28 +3,66 @@ use nu_protocol::{Signature, Span, Type, Value};
 
 use crate::bio_format::fasta::from_fasta_inner;
 
-pub struct Command;
+enum File {
+    Fasta,
+    Fa,
+}
+
+impl std::fmt::Display for File {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                File::Fasta => "fasta",
+                File::Fa => "fa",
+            }
+        )
+    }
+}
+
+pub struct Command {
+    name: String,
+    description: String,
+    switch_description: String,
+}
+
+impl Command {
+    fn new(f: File) -> Self {
+        Self {
+            name: format!("from {f}"),
+            description: format!(
+                "Parse text as .{f} file and create a table of ID's and sequences."
+            ),
+            switch_description: format!("parse the {f} header description"),
+        }
+    }
+
+    pub fn fasta() -> Self {
+        Self::new(File::Fasta)
+    }
+
+    pub fn fa() -> Self {
+        Self::new(File::Fa)
+    }
+}
 
 impl SimplePluginCommand for Command {
     type Plugin = crate::nu::Bio;
 
     fn name(&self) -> &str {
-        "from fasta"
+        &self.name
     }
 
     fn description(&self) -> &str {
-        "Parse text as .fasta file and create a table of ID's and sequences."
+        &self.description
     }
 
     fn signature(&self) -> nu_protocol::Signature {
         Signature::build(<Self as SimplePluginCommand>::name(self))
             .input_output_types(vec![(Type::String, Type::table())])
             .category(nu_protocol::Category::Formats)
-            .switch(
-                "description",
-                "parse the fasta header description",
-                Some('d'),
-            )
+            .switch("description", &self.switch_description, Some('d'))
     }
 
     fn run(
